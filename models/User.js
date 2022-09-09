@@ -1,4 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
 const sequelize = require('../config/connection');
 
 class User extends Model {}
@@ -34,6 +35,13 @@ User.init(
         }
     },
     {
+        hooks: {
+            beforeCreate(userData) {
+                return bcrypt.hash(userData.password, 10).then(newUserData => {
+                    return newUserData;
+                });
+            }
+        },
         //Table Configuration Optoins Go Here
         //Pass in Our Imported Sequelize Connection (the direct connection to our database)
         sequelize,
