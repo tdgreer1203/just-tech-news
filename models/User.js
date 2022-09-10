@@ -2,7 +2,11 @@ const { Model, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 const sequelize = require('../config/connection');
 
-class User extends Model {}
+class User extends Model {
+    checkPassword(loginPw) {
+        return bcrypt.compareSync(loginPw, this.password);
+    }
+}
 
 User.init(
     {
@@ -36,10 +40,13 @@ User.init(
     },
     {
         hooks: {
-            beforeCreate(userData) {
-                return bcrypt.hash(userData.password, 10).then(newUserData => {
-                    return newUserData;
-                });
+            async beforeCreate(userData) {
+                newUserData.password = await bcrypt.hash(userData.password, 10)
+                return newUserData;
+            },
+            async beforeUpdate(userData) {
+                updatedUserData.password = await bcrypt.hash(userData.password, 10)
+                return updatedUserData;
             }
         },
         //Table Configuration Optoins Go Here
